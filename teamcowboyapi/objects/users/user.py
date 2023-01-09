@@ -1,0 +1,142 @@
+from typing import List, Union
+from dataclasses import dataclass
+
+from teamcowboyapi.objects.users import Linkeduser
+from teamcowboyapi.objects.users import Profilephoto
+
+@dataclass
+class Linkedusers:
+    """
+    Simple object describing users that are linked to and/or from the user. 
+    Object will be empty if the user has no linked users. This property is not 
+    present if the User is being returned in context to a team.
+
+    Attributes:
+    -----------
+    linkedTo : List[Linkeduser]
+        An array of LinkedUser objects representing the users that the user is linked to
+    linkedBy : List[Linkeduser] 
+        An array of LinkedUser objects representing the users that are linked to the user
+    """
+    linkedTo: List[Union[Linkeduser, dict]]
+    linkedBy: List[Union[Linkeduser, dict]] 
+
+    def __post_init__(self):
+        self.linkedTo = [Linkeduser(**link) for link in self.linkedTo]
+        self.linkedBy = [Linkeduser(**link) for link in self.linkedBy]
+
+@dataclass
+class User:
+    """
+    A user in the Team Cowboy system. Users may be on one or more teams (or no 
+    teams at all).
+
+    IMPORTANT NOTE:  User profile information can be overridden for specific 
+    teams that the user is a member of. Because of this, profile information 
+    returned in a User object will either be for the core user profile or it 
+    will be for the user in context to a specific team. This is based on the 
+    API method that was called. For example, the User object returned from the 
+    User_Get method call will be in context of the user themselves whereas the 
+    array of User objects returned from a Team_GetRoster method call will be 
+    in context of the team passed with the method call via the teamId parameter.
+ 
+    Also note that some method calls that return User objects may return an 
+    abridged version of the object which has fewer properties populated. For 
+    example, Event_GetAttendanceList returns an AttendanceList object which 
+    includes and object that has a User object as its property. This User 
+    object does not include all of the properties listed below (such as 
+    detailed contact information and profile information) because that 
+    information is not relevant to displaying the attendance list.
+    
+    Attributes:
+    -----------
+    userId : int
+        User Id
+    firstName : str
+        First name
+    lastName : str
+        Last name
+    fullName : str
+        Full name (first and last names combined)
+    displayName : str
+        Display name
+    emailAddress1 : str
+        E-mail address 1
+    emailAddress2 : str
+        E-mail address 2
+    phone1 : str    
+        Phone number 1
+    phone2 : str
+        Phone number 2
+    gender : str
+        Gender
+        Possible values:
+            m - Male
+            f - Female
+            other - Other/Not specified
+    genderDisplay : str
+        Gender display value
+    birthDate_month : int
+        Birthdate month (01 through 12)
+    birthDate_day : int
+        Birthdate day (01 through 31)
+    birthDate_year : int
+        Birthdate year (4-digit year)
+    shirtNumber : str
+        Shirt number
+    shirtSize : str
+        Shirt size (may be a numeric size or a standard size like S, M, L, etc.)
+    pantsSize : str
+        Pants size (may be a numeric size or a standard size like S, M, L, etc.)
+    options : list #!
+        An array of options that pertain to the user.
+        NOTE: This property is only populated for the user that is associated 
+        with the user token passed in the API call (i.e., only the current 
+        user's options are populated).
+    profilePhoto : Profilephoto
+        Simple object with full URLs to the user's profile photo.
+    teamMeta : Teammeta #!?
+        Simple object describing team-specific information. This property is 
+        only present if the User is being returned in context to a team or 
+        event attendance list.
+        NOTE:  If reading user information from a call to the event attendance 
+        list (e.g., Event_GetAttendanceList), only the teamMemberType property 
+        will be populated below. All other values will not be present.
+    linkedUsers : Linkedusers
+        Simple object describing users that are linked to and/or from the 
+        user. Object will be empty if the user has no linked users. This 
+        property is not present if the User is being returned in context to a 
+        team.
+    dateCreatedUtc : str
+        Date/time the user was created (UTC). This property is not present if 
+        the User is being returned in context to a team.
+    dateLastUpdatedUtc : str
+        Date/time the user was last updated (UTC).
+    dateLastSignInUtc : str
+        Date/time the user last signed in (UTC).
+    """
+    userId: int
+    firstName: str
+    lastName: str
+    fullName: str
+    displayName: str
+    emailAddress1: str
+    emailAddress2: str
+    phone1: str
+    phone2: str
+    gender: str
+    genderDisplay: str
+    birthDate_month: int
+    birthDate_day: int
+    birthDate_year: int
+    shirtNumber: str
+    shirtSize: str
+    pantsSize: str
+    options: list #!
+    profilePhoto: Profilephoto
+    teamMeta: Teammeta #!?
+    linkedUsers: Linkedusers
+    dateCreatedUtc: str
+    dateLastUpdatedUtc: str
+    dateLastSignInUtc: str
+
