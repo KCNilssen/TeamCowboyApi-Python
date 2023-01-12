@@ -2,7 +2,59 @@ from typing import List, Union
 from dataclasses import dataclass
 
 from teamcowboyapi.objects.users import Profilephoto
-from teamcowboyapi.objects.teams import Team
+from teamcowboyapi.objects.teams import Teammembertype
+
+
+# Begin Simpleteam
+
+@dataclass
+class Metalinkeduser:
+    """
+    Simple object with meta information about the user in context to the team
+
+    Attributes:
+    -----------
+    teamMemberType : Teammembertype
+        Information describing the user's team member type:
+    options : List
+        Array of options specific to the user/team pair
+    """
+    teamMemberType: Union[Teammembertype, dict]
+    options: List
+
+    def __post_init__(self):
+        self.teamMemberType = Teammembertype(**self.teamMemberType)
+
+@dataclass
+class Simpleteam:
+    """
+    Simple object representing a team that the linked user is a member of
+    
+    Attributes:
+    -----------
+    teamId : int 
+        Team Id
+    name : str 
+        The name of the team
+    profilePhoto : Profilephoto
+        Simple object with full URLs to the team's photo.
+    meta : Metalinkeduser
+        Simple object with meta information about the user in context to the 
+        team.
+    """
+    teamId: int
+    name: str
+    profilePhoto: Union[Profilephoto, dict]
+    meta: Union[Metalinkeduser, dict]
+    
+    def __post_init__(self):
+        self.Profilephoto = Profilephoto(**self.Profilephoto)
+        self.Metalinkeduser = Metalinkeduser(**self.Metalinkeduser)
+
+
+# 
+# Main Parent Object
+# 
 
 @dataclass
 class Linkeduser:
@@ -43,5 +95,9 @@ class Linkeduser:
     displayName: str
     isActive: bool
     profilePhoto: Union[Profilephoto, dict]
-    teams: List[Union[Team, dict]]
+    teams: List[Union[Simpleteam, dict]]
+
+    def __post_init__(self):
+        self.profilePhoto = Profilephoto(**self.profilePhoto)
+        self.teams = Simpleteam(**self.teams)
 
