@@ -1,8 +1,14 @@
+import time
+from typing import List, Union
 import logging
 
-from typing import List, Union
-
+from .exceptions import TheTeamCowboyAPIException
 from .tc_dataadapter import TCDataAdapter
+
+from teamcowboyapi import tc_helpers
+
+from teamcowboyapi.objects.authuser import Authuser
+from teamcowboyapi.objects.events import Event
 
 
 class Teamcowboy:
@@ -13,43 +19,80 @@ class Teamcowboy:
 
     Attributes:
     ----------
-    hostname: str
+    privateapikey : str
+        This is the private API key granted to you along with your API account.
+    publicapikey : str
+        This is the public API key granted to you along with your API account.
+    username : str
+        The username of the user you are getting a token for.
+    password : str
+        The password of the user you are getting a token for.
+    hostname : str
         hostname of api.teamcowboy.com
-    logger: logging.Loger
+    logger : logging.Loger
         logger
     """
-    def __init__(self, hostname: str = 'api.teamcowboy.com', 
-        logger: logging.Logger = None):
+    def __init__(self, privateapikey, publicapikey,
+                    username, password,
+                    hostname: str = 'api.teamcowboy.com',
+                    logger: logging.Logger = None):
+        self.privatekey = privateapikey
+        self.publickey = publicapikey
+        self.usertoken = self.Auth_GetUserToken(username, password).token
         self._tc_adapter_v1 = TCDataAdapter(hostname, 'v1', logger)
         self._logger = logger or logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
 
+
+        token = self.Auth_GetUserToken(username, password)
+
+        if token and token.token:
+            self.usertoken = token.token
+        else:
+            raise TheTeamCowboyAPIException(f"Failed to create usertoken")
 
 
     """
     Authentication Methods
     """
 
-    def Auth_GetUserToken() -> Authuser:
+    def Auth_GetUserToken(self, username: str, password: str) -> Authuser:
         """
         This function makes an API call to retrieve a user auth token.
         
         Parameters:
         -----------
-        
+        username : str
+            Required. The username of the user you are getting a token for.
+        password : str
+            Required. The password of the user you are getting a token for.
+
         Returns:
         --------
         A Authuser object
         """
-        pass
 
+        request_data = tc_helpers.createrequestdata({
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "username":username,
+            "password":password,
+        })
 
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "token" in tc_data and tc_data["token"]:
+            return Authuser(**tc_data)
 
     """
     Event Methods
     """
 
-    def Event_Get() -> Event:
+    def Event_Get(self, teamId: int, eventId: int, includeRSVPInfo: bool) -> Event:
         """
         Retrieves details for a specific event. User must be an active team 
         member on the team provided and the event must be associated with the 
@@ -57,12 +100,33 @@ class Teamcowboy:
         
         Parameters:
         -----------
+        teamId : int
+            
+        eventId : int
+            
+        includeRSVPInfo : bool
+            
 
         Returns:
         --------
         Event object
         """
-        pass
+
+        request_data = tc_helpers.createrequestdata({
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "username":username,
+            "password":password,
+        })
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "token" in tc_data and tc_data["token"]:
+            return Authuser(**tc_data)
 
     def Event_GetAttendanceList() -> Attendancelist:
         """
