@@ -8,7 +8,9 @@ from .tc_dataadapter import TCDataAdapter
 from teamcowboyapi import tc_helpers
 
 from teamcowboyapi.objects.authuser import Authuser
-from teamcowboyapi.objects.events import Event
+from teamcowboyapi.objects.events import Event, Saversvpresponse
+from teamcowboyapi.objects.attendances import Attendancelist
+from teamcowboyapi.objects.messages import Message, Messagecomment
 
 
 class Teamcowboy:
@@ -59,6 +61,10 @@ class Teamcowboy:
     def Auth_GetUserToken(self, username: str, password: str) -> Authuser:
         """
         This function makes an API call to retrieve a user auth token.
+
+        Request Method:        
+        ---------------
+        - POST
         
         Parameters:
         -----------
@@ -72,7 +78,8 @@ class Teamcowboy:
         A Authuser object
         """
 
-        request_data = tc_helpers.createrequestdata({
+        rdata = {
+            "request_type": "POST",
             "private_key":self.privatekey,
             "api_key":self.publickey,
             "method":"Auth_GetUserToken",
@@ -81,69 +88,113 @@ class Teamcowboy:
             "responce_type":"json",
             "username":username,
             "password":password,
-        })
+        }
+
+        request_data = tc_helpers.createrequestdata(rdata)
 
         tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
 
         if "token" in tc_data and tc_data["token"]:
-            return Authuser(**tc_data)
+            return Authuser(**tc_data.data)
 
     """
     Event Methods
     """
 
-    def Event_Get(self, teamId: int, eventId: int, includeRSVPInfo: bool) -> Event:
+    def Event_Get(self, teamId: int, eventId: int, **params) -> Event:
         """
         Retrieves details for a specific event. User must be an active team 
         member on the team provided and the event must be associated with the 
         team provided.
+
+        Request Method:        
+        ---------------
+        - GET
         
         Parameters:
         -----------
         teamId : int
-            
+            Id of the team that the event is associated with.
         eventId : int
-            
+            Id of the event to retrieve.
+
+        Optional Parameters:
+        --------------------
         includeRSVPInfo : bool
-            
+            Optional. Whether or not to include RSVP information for the user.
+            Default value:  false
 
         Returns:
         --------
         Event object
         """
 
-        request_data = tc_helpers.createrequestdata({
+        rdata = {
+            "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
             "method":"Auth_GetUserToken",
             "timestamp":time.time(),
             "nonce":F"int(1000*{time.time()})",
             "responce_type":"json",
-            "username":username,
-            "password":password,
-        })
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "eventId": eventId,
+            "includeRSVPInfo": includeRSVPInfo
+        }
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
 
-        if "token" in tc_data and tc_data["token"]:
-            return Authuser(**tc_data)
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
 
-    def Event_GetAttendanceList() -> Attendancelist:
+        if "eventId" in tc_data.data and tc_data.data["eventId"]:
+            return Event(**tc_data.data)
+
+    def Event_GetAttendanceList(self, teamId: int, eventId: int) -> Attendancelist:
         """
         Retrieves attendance list information for a specific event. This 
         provides a list of team members and their RSVP statuses for the 
         requested event.
+
+        Request Method:        
+        ---------------
+        - GET
         
         Parameters:
         -----------
+        teamId : int
+            Id of the team that the event is associated with.
+        eventId : int
+            Id of the event for the attendance list to retrieve.
 
         Returns:
         --------
         Attendencelist object
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "eventId": eventId,
+        }
 
-    def Event_SaveRSVP() -> Saversvpresponse:
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "users" in tc_data.data and tc_data.data["users"]:
+            return Attendancelist(**tc_data.data)
+
+    def Event_SaveRSVP(self, teamId: int, eventId: int, status: str, 
+                        **params) -> Saversvpresponse:
         """
         Saves an event RSVP for a user. Note that rules surrounding RSVPs are 
         complex and can vary from event-level rules to more complete team 
@@ -155,36 +206,128 @@ class Teamcowboy:
         such as “available”, then providing “available” as the status 
         parameter value will either throw an error or it will default to the 
         next best fit RSVP status (e.g., “maybe” or “no”).
+
+        Request Method:        
+        ---------------
+        - POST
         
         Parameters:
         -----------
+        teamId : int
+            Id of the team that the event is associated with.
+        eventId : int
+            Id of the event to retrieve.
+        status : str 
+            The RSVP status to save for the user.
+            To remove a RSVP, pass “noresponse” to remove the RSVP (if RSVP 
+            removal is allowed for the event). To determine if RSVP removal is 
+            allowed for a given event, refer to 
+            Event.rsvpInstances[].rsvpDetails.allowRsvpRemoval
+            Valid values:  yes, maybe, available, no, noresponse
+
+        Optional Parameters:
+        --------------------
+        addlMale : int
+            Optional. The number of additional male players to include as 
+            “yes” in the RSVP. If this parameter is omitted from the request, 
+            any value present for additional male players on the RSVP is not 
+            updated (i.e., existing values will not be overwritten). To remove 
+            this value for the RSVP, pass 0 (zero).
+        addlFemale : int
+            Optional. The number of additional female players to include as 
+            “yes” in the RSVP. If this parameter is omitted from the request, 
+            any value present for additional female players on the RSVP is not 
+            updated (i.e., existing values will not be overwritten). To remove 
+            this value for the RSVP, pass 0 (zero).
+        comments : str
+            Optional. RSVP comments. If not provided, any existing RSVP 
+            comments will be cleared out for the user's RSVP.
+        rsvpAsUserId : int
+            Optional. The user to RSVP for. This is used to allow a user to 
+            RSVP as a user that is in their list of linked users. If not 
+            provided, the RSVP will be saved for the user associated with the 
+            userToken parameter value.
 
         Returns:
         --------
         Saversvpresponse object
         """
-        pass
 
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "eventId": eventId,
+            "status": status
+        }
+
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "users" in tc_data.data and tc_data.data["users"]:
+            return Attendancelist(**tc_data.data)
 
 
     """
     Message Methods
     """
 
-    def Message_Get() -> Message:
+    def Message_Get(self, teamId: int, messageId: int, **params) -> Message:
         """
         Retrieves information about a team message.
+
+        Request Method:        
+        ---------------
+        - GET
         
         Parameters:
         -----------
+        teamId : int
+            Id of the team associated with the message.
+        messageId : int
+            Id of the message to retrieve.
+
+        Optional Parameters:
+        --------------------
+        loadComments : bool
+            Optional. Whether or not to load comments for the message.
+            Default value: false
 
         Returns:
         --------
         Message object
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "messageId": messageId,
+        }
 
-    def Message_Delete() -> bool:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "messageId" in tc_data.data and tc_data.data["messageId"]:
+            return Message(**tc_data.data)
+
+    def Message_Delete(self, teamId: int, messageId: int) -> bool:
         """
         Deletes a team message. The user attempting to delete the message must 
         be a team admin for the team that the message is associated with, or 
@@ -196,14 +339,37 @@ class Teamcowboy:
         
         Parameters:
         -----------
+        teamId : int
+            Id of the team associated with the message.
+        messageId : int
+            Id of the message to delete.
 
         Returns:
         --------
         Boolean
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "messageId": messageId,
+        }
 
-    def Message_Save() -> Message:
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        # Responce is a bool, so just return responce?
+        return tc_data.data
+
+    def Message_Save(self, teamId: int, title: str, body: str, **params) -> Message:
         """
         Saves (adds or updates) a team message.
 
@@ -213,14 +379,66 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team associated with the message to add/update.
+        title : str 
+            The title of the message.
+        body : str
+            The body of the message. HTML is allowed, although unsafe tags are 
+            stripped out (nearly all normal HTML tags are allowed).
+
+        Optional Parameters:
+        --------------------
+        messageId : int
+            Optional. Id of the message to update. If not provided, a new 
+            message will be added.
+        isPinned : bool
+            Optional. Whether or not the message should be pinned in the 
+            team's list of mesages.
+            Default value:  false (this value is forced to false if the user 
+            adding/updating the message is not a team admin).
+        sendNotifications : bool
+            Optional. Whether or not to send notifications when the message 
+            and any message comments are posted.
+            Default value:  false
+        isHidden : bool
+            Optional. Whether or not the message is hidden in the team's list 
+            of messages.
+            Default value:  false (this value is forced to false if the user 
+            adding/updating the message is not a team admin).
+        allowComments : bool
+            Optional. Whether or not comments can be posted for the message.
+            Default value:  true
 
         Returns:
         --------
         Message object that was added or updated.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "title": title,
+            "body": body
+        }
 
-    def MessageComment_Delete() -> bool:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "messageId" in tc_data.data and tc_data.data["messageId"]:
+            return Message(**tc_data.data)
+
+
+    def MessageComment_Delete(self, teamId: int, messageId: int, commentId: int) -> bool:
         """
         Deletes a comment for a message. The user attempting to delete the 
         comment must be a team admin for the team that the message comment 
@@ -232,14 +450,41 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team associated with the message.
+        messageId : int
+            Id of the message that the comment is associated with.
+        commentId : int
+            Id of the comment to delete.
 
         Returns:
         --------
         Boolean (true if the comment was successfully deleted, false otherwise)
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "messageId": messageId,
+            "commentId": commentId
+        }
 
-    def MessageComment_Add() -> Messagecomment:
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        # Responce is a bool, so just return responce?
+        return tc_data.data
+
+
+    def MessageComment_Add(self, teamId: int, messageId: int, comment: str) -> Messagecomment:
         """
         Adds a new comment for a message. The message must allow comments to 
         be posted or the request will not be successful.
@@ -250,12 +495,38 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team associated with the message.
+        messageId : int
+            Id of the message that the comment is associated with.
+        comment : str
+            The text of the comment being added.
 
         Returns:
         --------
         MessageComment object for the comment that was added.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,
+            "messageId": messageId,
+            "comment": comment
+        }
+
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "commentId" in tc_data.data and tc_data.data["commentId"]:
+            return Messagecomment(**tc_data.data)
 
 
 
