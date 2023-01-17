@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class Test:
+class Testresponce:
     """
     This is a very basic testing object via a HTTP GET or via a HTTP POST.
     
