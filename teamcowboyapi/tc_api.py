@@ -11,6 +11,10 @@ from teamcowboyapi.objects.authuser import Authuser
 from teamcowboyapi.objects.events import Event, Saversvpresponse
 from teamcowboyapi.objects.attendances import Attendancelist
 from teamcowboyapi.objects.messages import Message, Messagecomment
+from teamcowboyapi.objects.teams import Team
+from teamcowboyapi.objects.users import User
+from teamcowboyapi.objects.seasons import Season
+from teamcowboyapi.objects.tests import Testresponce
 
 
 class Teamcowboy:
@@ -534,7 +538,7 @@ class Teamcowboy:
     Team Methods
     """
     
-    def Team_Get() -> Team:
+    def Team_Get(self, teamId: int) -> Team:
         """
         Retrieves information about a team. The team requested must be 
         accessible by the user represented by the user token being provided 
@@ -547,14 +551,34 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team to retrieve.
 
         Returns:
         --------
         Team object.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,            
+        }
 
-    def Team_GetEvents() -> List[Event]:
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "teamId" in tc_data.data and tc_data.data["teamId"]:
+            return Team(**tc_data.data)
+
+    def Team_GetEvents(self, teamId: int, **params) -> List[Event]:
         """
         Retrieves an array of events for a team's season.The team requested 
         must be accessible by the user represented by the user token being 
@@ -567,14 +591,85 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team to retrieve events for.
+
+        Optional Parameters:
+        --------------------
+        seasonId : int
+            Optional. Id of the season to retrieve events for.
+            If not provided, events for all of the team's seasons will be 
+            returned.
+        offset : int
+            Optional. The number of events to shift from those returned. This 
+            is typically used if you are requesting a specific number of 
+            events per page and you need to offset to a different page. This 
+            value is zero-based (i.e., for no offset, use 0, not 1).
+            Default value:  0
+        qty : int
+            Optional. The number of events to retrieve. Again, if using 
+            pagination in your application, this would typically be the page 
+            size, or you just want to reduce the response size (i.e., less 
+            events).
+            Default value:  10
+        filter : str
+            Optional. An enumeration value indicating a special filter for 
+            retrieving events.
+            Valid values:
+                - past - returns events that have a start date before the 
+                    current date in the team's time zone
+                - future - returns events that start in the future, based on 
+                    the current date/time in the team's time zone
+                - specificDates - returns events bounded by a specific date 
+                    range, specified by the “startDateTime” and “endDateTime” 
+                    parameters. At least one of these parameters is required if 
+                    using this filter value.
+                - nextEvent - returns the next event based on the current 
+                    date/time. Note that this keys off of the start date/time 
+                    of the event.
+                - previousEvent - returns the previous event based on the 
+                    current date/time. Note that this keys off of the start 
+                    date/time of the event.
+            If not provided, the filter defaults to “future”.
+        startDateTime : str
+            Required (if filter=specificDates). If provided, events will only 
+            be retrieved that have a start date on or after this value. The 
+            value provided is evaluated against the local date for the event.
+            Enter date/time in format:
+            YYYY-MM-DD HH:MM:SS
+        endDateTime : str
+            Required (if filter=specificDates). If provided, events will only 
+            be retrieved that have a start date on or before this value. The 
+            value provided is evaluated against the local date for the event.
+            Enter date/time in format:
+            YYYY-MM-DD HH:MM:SS
 
         Returns:
         --------
         List of Event objects.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,            
+        }
 
-    def Team_GetMessages() -> List[Message]:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Event(**event) for event in tc_data.data]
+
+    def Team_GetMessages(self, teamId: int, **params) -> List[Message]:
         """
         This function makes an API call to retrieve a list of messages for a 
         team.
@@ -585,14 +680,69 @@ class Teamcowboy:
         
         Parameters:
         -----------
+        teamId : int
+            Id of the team to retrieve messages for.
+
+        Opional Parameters:
+        -------------------
+        messageId : int
+            Optional. Id of the message to retrieve. If not provided, all 
+            messages are retrieved.
+        offset : int
+            Optional. The number of messages to shift from those returned. 
+            This is typically used if you are requesting a specific number of 
+            messages per page. This value is zero-based (i.e., for no offset, 
+            use 0, not 1).
+            Default value:  0
+        qty : int
+            Optional. The number of messages to retrieve. Again, if using 
+            pagination in your application, this would typically be the page 
+            size.
+            Default value:  10
+        sortBy : str
+            Optional. An enumeration value indicating how to sort the messages 
+            that are returned.
+            Valid values:
+                - title - message title
+                - lastUpdated - date/time when the message was last updated
+                - type - the message type (pinned or regular message)
+            Default value:  lastUpdated
+        sortDirection : str
+            Optional. The sort direction for the messages returned.
+            Valid values:  ASC, DESC
+            Default value:  The default value varies based on the sortBy 
+            parameter:
+                - title: ASC
+                - lastUpdated: DESC
+                - type: DESC
+                - No sortBy parameter: ASC
 
         Returns:
         --------
         A list of Message objects
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,            
+        }
 
-    def Team_GetRoster() -> List[User]:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Message(**msg) for msg in tc_data.data]
+
+    def Team_GetRoster(self, teamId: int, **params) -> List[User]:
         """
         Retrieves roster members for a given team.
 
@@ -602,14 +752,61 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team to retrieve.
+
+        Optional Parameters:
+        --------------------
+        userId : int
+            Optional. Id of a specific user/team member to retrieve. If 
+            omitted, all team members are returned.
+        includeInactive : bool
+            Optional. Whether or not to include team members that are marked 
+            as “inactive” for a team (inactive team members cannot access the 
+            team but are visible from the Roster page for team admins). 
+            Default value:  true
+        sortBy : str
+            Optional. Order to sort the team members returned. The valid 
+            values for this parameter vary depending on whether or not the 
+            user making the method call is an admin on the team.
+            Valid values (case-sensitive):
+                - If user is a team admin:  playerType, playerType_sex, sex, 
+                sex_playerType, email, email2, firstName, lastName, phone, 
+                tshirtSize, tshirtNumber, pantsSize, lastLogin, active, 
+                inviteStatus
+                - If user is not a team admin:  firstName, playerType, sex
+            Default value:  firstName
+        sortDirection : str
+            Optional. The sort direction for the team members returned.
+            Valid values:  ASC, DESC
+            Default value:  ASC
 
         Returns:
         --------
         Array of User objects.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,            
+        }
 
-    def Team_GetSeasons() -> List[Season]:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [User(**user) for user in tc_data.data]
+
+    def Team_GetSeasons(self, teamId: int) -> List[Season]:
         """
         Retrieves schedule seasons for a team. The team requested must be 
         accessible by the user represented by the user token being provided 
@@ -622,20 +819,39 @@ class Teamcowboy:
 
         Parameters:
         -----------
+        teamId : int
+            Id of the team to retrieve seasons for.
 
         Returns:
         --------
         Array of Season objects.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,
+            "teamId": teamId,            
+        }
 
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Season(**season) for season in tc_data.data]
 
 
     """
     Test Methods
     """
 
-    def Test_GetRequest() -> Testresponce:
+    def Test_GetRequest(self, **params) -> Testresponce:
         """
         This is a very basic testing method for checking that you are able to 
         call the Team Cowboy API via a HTTP GET.
@@ -644,16 +860,38 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
+        Optional Parameters:
         -----------
+        testParam : str
+            Optional. A string to send with the method. The value will be 
+            output in the response so you can verify that you sent a 
+            parameter successfully.
 
         Returns:
         --------
         Testresponce object. 
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json"    
+        }
 
-    def Test_PostRequest() -> Testresponce:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "helloWorld" in tc_data.data and tc_data.data["helloWorld"]:
+            return Testresponce(**tc_data.data)
+        
+
+    def Test_PostRequest(self, **params) -> Testresponce:
         """
         This is a very basic testing method for checking that you are able to 
         call the Team Cowboy API via a HTTP POST.
@@ -662,20 +900,42 @@ class Teamcowboy:
         ---------------
         - POST
 
-        Parameters:
+        Optional Parameters:
         -----------
+        testParam : str
+            Optional. A string to send with the method. The value will be 
+            output in the response so you can verify that you sent a 
+            parameter successfully.
 
         Returns:
         --------
         Testresponce object. 
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json"    
+        }
+
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "helloWorld" in tc_data.data and tc_data.data["helloWorld"]:
+            return Testresponce(**tc_data.data)
+        
 
     """
     User Methods
     """
 
-    def User_Get() -> User:
+    def User_Get(self) -> User:
         """
         Retrieves user details.
 
@@ -683,16 +943,30 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
-        -----------
-
         Returns:
         --------
         User object.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken,          
+        }
 
-    def User_GetNextTeamEvent() -> Event:
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "userId" in tc_data.data and tc_data.data["userId"]:
+            return User(**tc_data.data)
+
+    def User_GetNextTeamEvent(self, **params) -> Event:
         """
         Retrieves the next event on the user's event schedule. By default, the 
         event will be the next event from any of the teams that are visible in 
@@ -703,17 +977,43 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
-        -----------
+        Optional Parameters:
+        --------------------
+        teamId : int
+            Optional. A teamId to restrict the event returned to a specific 
+            team. If not provided, events for all of the user's teams will be 
+            considered.
+        dashboardTeamsOnly : bool
+            Optional. Whether or not to only consider the user's Dashboard 
+            teams when retrieving the user's next event.
+            Default value:  false
 
         Returns:
         --------
         Event object. If no next event is present, an empty object will be 
         returned.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken        
+        }
 
-    def User_GetTeamEvents() -> List[Event]:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if "eventId" in tc_data.data and tc_data.data["eventId"]:
+            return Event(**tc_data.data)
+
+    def User_GetTeamEvents(self, **params) -> List[Event]:
         """
         Retrieves an array of events for the teams that the user is an active 
         member of. Events are only returned for teams that are visible in the 
@@ -723,16 +1023,56 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
-        -----------
+        Optional Parameters:
+        --------------------
+        startDateTime : str
+            Optional. If provided, events will only be retrieved that have a 
+            start date/time on or after this value. The value provided is 
+            evaluated against the local date/time for the event. If not 
+            provided, the current date/time is used.
+            Enter date/time in format:
+            YYYY-MM-DD HH:MM:SS
+        endDateTime : str
+            Optional. If provided, events will only be retrieved that have a 
+            start date/time on or before this value. The value provided is 
+            evaluated against the local date/time for the event. If not 
+            provided, the current date/time + 60 days is used.
+            Enter date/time in format:
+            YYYY-MM-DD HH:MM:SS
+        teamId : int
+            Optional. A teamId to restrict the events returned to a specific 
+            team. If not provided, events for all of the user's teams are 
+            returned.
+        dashboardTeamsOnly : bool
+            Optional. Whether or not to restrict the events retrieved only to 
+            those for teams on the user's Dashboard.
+            Default value:  false
 
         Returns:
         --------
         List of Event objects.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken        
+        }
+
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Event(**event) for event in tc_data.data]
     
-    def User_GetTeamMessages() -> List[Message]:
+    def User_GetTeamMessages(self, **params) -> List[Message]:
         """
         Retrieves an array of Message Board posts for the teams that the user 
         is an active member of. Message Board posts are only returned for 
@@ -742,16 +1082,69 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
-        -----------
+        Optional Parameters:
+        --------------------
+        teamId : int
+            Optional. A teamId to restrict the messages that are returned to a 
+            specific team.
+            Default:  If this value is not provided, messages for all of the 
+            user's teams are returned.
+        messageId : int
+            Optional. Id of the message to retrieve. If not provided, all 
+            messages are retrieved.
+        offset : int
+            Optional. The number of messages to shift from those returned. 
+            This is typically used if you are requesting a specific number of
+            messages per page. This value is zero-based (i.e., for no offset, 
+            use 0, not 1).
+            Default value:  0
+        qty : int
+            Optional. The number of messages to retrieve. Again, if using 
+            pagination in your application, this would typically be the page 
+            size.
+            Default value:  10
+        sortBy : str
+            Optional. An enumeration value indicating how to sort the messages 
+            that are returned.
+            Valid values:
+                - title - message title
+                - lastUpdated - date/time when the message was last updated
+                - type - the message type (pinned or regular message)
+            Default value:  lastUpdated
+        sortDirection : str
+            Optional. The sort direction for the messages returned.
+            Valid values:  ASC, DESC
+            Default value:  The default value varies based on the sortBy parameter:
+                - title: ASC
+                - lastUpdated: DESC
+                - type: DESC
+                - No sortBy parameter: ASC
 
         Returns:
         --------
         List of Message objects.
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken        
+        }
 
-    def User_GetTeams() -> List[Team]:
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Message(**messsage) for messsage in tc_data.data]
+
+    def User_GetTeams(self, **params) -> List[Team]:
         """
         This function makes an API call to retrieve a list of teams for a user.
         
@@ -759,11 +1152,33 @@ class Teamcowboy:
         ---------------
         - GET
 
-        Parameters:
-        -----------
+        Optional Parameters:
+        --------------------
+        dashboardTeamsOnly : bool
+            Optional. Whether or not to restrict the teams retrieved only to 
+            those on the user's Dashboard.
+            Default value:  false
 
         Returns:
         --------
         A list of Team objects
         """
-        pass
+        
+        rdata = {
+            "request_type": "GET",
+            "private_key":self.privatekey,
+            "api_key":self.publickey,
+            "method":"Auth_GetUserToken",
+            "timestamp":time.time(),
+            "nonce":F"int(1000*{time.time()})",
+            "responce_type":"json",
+            "userToken": self.usertoken        
+        }
+
+        rdata |+ params
+        request_data = tc_helpers.createrequestdata(rdata)
+
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+
+        if tc_data.data:
+            return [Team(**team) for team in tc_data.data]
