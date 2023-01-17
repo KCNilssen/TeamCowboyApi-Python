@@ -143,8 +143,7 @@ class Teamcowboy:
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
-            "eventId": eventId,
-            "includeRSVPInfo": includeRSVPInfo
+            "eventId": eventId            
         }
 
         rdata |+ params
