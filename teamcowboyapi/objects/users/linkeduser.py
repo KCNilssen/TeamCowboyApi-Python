@@ -1,7 +1,7 @@
 from typing import List, Union
 from dataclasses import dataclass
 
-from teamcowboyapi.objects.users import Profilephoto
+from teamcowboyapi.objects.photos import Profilephoto
 from teamcowboyapi.objects.teams import Teammembertype
 
 

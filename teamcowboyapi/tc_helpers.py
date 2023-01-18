@@ -9,14 +9,16 @@ def createrequestdata(requestparams: dict) -> dict:
     """
 
     privatekey = requestparams.pop('private_key')
-    requesttype = requestparams.pop('request_type')
+    # requesttype = requestparams.pop('request_type')
 
-    signatureinputstring = F"{privatekey}|{requesttype}|Auth_GetUserToken|{requestparams['timestamp']}|{requestparams['nonce']}|"
+    signatureinputstring = F"{privatekey}|{requestparams['request_type']}|{requestparams['method']}|{requestparams['timestamp']}|{requestparams['nonce']}|"
 
     for key, value in sorted(requestparams.items()):
-        signatureinputstring += F"&{key}={value}"
+        signatureinputstring += F"&{key.lower()}={value.lower() if type(value) == str else value}"
 
-    sig = hashlib.sha1(signatureinputstring).hexdigest()
+    sig = hashlib.sha1(signatureinputstring.encode('UTF-8')).hexdigest()
+
+    requestparams.pop('request_type')
 
     requestparams["sig"] = sig
 

@@ -2,7 +2,7 @@ from typing import Optional, Union
 from dataclasses import dataclass
 
 from teamcowboyapi.objects.activitys import Activity
-from teamcowboyapi.objects.users import Profilephoto
+from teamcowboyapi.objects.photos import Profilephoto
 from teamcowboyapi.objects.colorswatches import Colorswatch
 
 from .teammembertype import Teammembertype

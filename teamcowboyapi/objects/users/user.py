@@ -1,8 +1,67 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from dataclasses import dataclass
 
 from teamcowboyapi.objects.users import Linkeduser
-from teamcowboyapi.objects.users import Profilephoto
+from teamcowboyapi.objects.photos import Profilephoto
+from teamcowboyapi.objects.teams import Teammembertype
+
+@dataclass
+class Invite:
+    """
+    information describing the invitation status for the user:
+
+    Attributes:
+    -----------    
+    status : str
+        invitation status (accepted, rejected, pending)
+    guid : str
+        unique invitation GUID
+    dateSentLocal : str
+        Date/time the invite was sent (in the team's timezone)
+    dateLastUpdatedLocal : str
+        Date/time the invite was last updated (in the team's timezone)
+    dateSentUtc : str
+        Date/time the invite was sent (UTC)
+    dateLastUpdatedUtc : str
+        Date/time the invite was last updated (UTC)
+
+    """
+    status: str
+    guid: str
+    dateSentLocal: str 
+    dateLastUpdatedLocal: str 
+    dateSentUtc: str 
+    dateLastUpdatedUtc: str 
+
+@dataclass
+class Teammeta:
+    """
+    Simple object describing team-specific information. This property is only 
+    present if the User is being returned in context to a team or event 
+    attendance list.
+    NOTE:  If reading user information from a call to the event attendance 
+    list (e.g., Event_GetAttendanceList), only the teamMemberType property 
+    will be populated below. All other values will not be present.
+
+    Attributes:
+    -----------
+    teamMemberType : Teammembertype
+        A team member type that is assigned to a team member (or is available 
+        to be assigned to a team member).
+    notes : str 
+        Admin-only notes for the team member
+    isTeamAdmin : bool 
+        Whether or not the user is an admin on the team
+    invite : Invite 
+        information describing the invitation status for the user:
+    options : list  
+        Array of options specific to the user on the team
+    """
+    teamMemberType: Union[Teammembertype, dict]
+    notes: str 
+    isTeamAdmin: bool
+    invite: Union[Invite, dict]
+    options: list  
 
 @dataclass
 class Linkedusers:
@@ -134,9 +193,14 @@ class User:
     pantsSize: str
     options: list #!
     profilePhoto: Profilephoto
-    teamMeta: Teammeta #!?
     linkedUsers: Linkedusers
     dateCreatedUtc: str
     dateLastUpdatedUtc: str
     dateLastSignInUtc: str
+    teamMeta: Optional[Union[Teammeta, dict]] = None
+
+    def __post_init__(self):
+        self.profilePhoto = Profilephoto(**self.profilePhoto)
+        self.linkedUsers = Linkedusers(**self.linkedUsers)
+        self.teamMeta = Teammeta(**self.teamMeta)
 

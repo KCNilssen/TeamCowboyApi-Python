@@ -14,7 +14,7 @@ from teamcowboyapi.objects.messages import Message, Messagecomment
 from teamcowboyapi.objects.teams import Team
 from teamcowboyapi.objects.users import User
 from teamcowboyapi.objects.seasons import Season
-from teamcowboyapi.objects.tests import Testresponce
+from teamcowboyapi.objects.tests import Tresponce
 
 
 class Teamcowboy:
@@ -42,17 +42,17 @@ class Teamcowboy:
                     username, password,
                     hostname: str = 'api.teamcowboy.com',
                     logger: logging.Logger = None):
-        self.privatekey = privateapikey
-        self.publickey = publicapikey
-        self.usertoken = self.Auth_GetUserToken(username, password).token
         self._tc_adapter_v1 = TCDataAdapter(hostname, 'v1', logger)
         self._logger = logger or logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
 
+        self.privatekey = privateapikey
+        self.publickey = publicapikey
+        # self.usertoken = self.Auth_GetUserToken(username, password).token
 
         token = self.Auth_GetUserToken(username, password)
 
-        if token and token.token:
+        if token:
             self.usertoken = token.token
         else:
             raise TheTeamCowboyAPIException(f"Failed to create usertoken")
@@ -88,7 +88,7 @@ class Teamcowboy:
             "api_key":self.publickey,
             "method":"Auth_GetUserToken",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "username":username,
             "password":password,
@@ -96,9 +96,13 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'', data = request_data)
 
-        if "token" in tc_data and tc_data["token"]:
+        # print (tc_data.data)
+
+        print (tc_data.data)
+
+        if "token" in tc_data.data and tc_data.data["token"]:
             return Authuser(**tc_data.data)
 
     """
@@ -137,19 +141,19 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Event_Get",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
             "eventId": eventId            
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "eventId" in tc_data.data and tc_data.data["eventId"]:
             return Event(**tc_data.data)
@@ -180,9 +184,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Event_GetAttendanceList",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -191,7 +195,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "users" in tc_data.data and tc_data.data["users"]:
             return Attendancelist(**tc_data.data)
@@ -260,9 +264,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Event_SaveRSVP",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -270,10 +274,10 @@ class Teamcowboy:
             "status": status
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "users" in tc_data.data and tc_data.data["users"]:
             return Attendancelist(**tc_data.data)
@@ -313,19 +317,19 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Message_Get",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
             "messageId": messageId,
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "messageId" in tc_data.data and tc_data.data["messageId"]:
             return Message(**tc_data.data)
@@ -356,9 +360,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Message_Delete",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -367,7 +371,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         # Responce is a bool, so just return responce?
         return tc_data.data
@@ -422,9 +426,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Message_Save",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -432,10 +436,10 @@ class Teamcowboy:
             "body": body
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "messageId" in tc_data.data and tc_data.data["messageId"]:
             return Message(**tc_data.data)
@@ -469,9 +473,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"MessageComment_Delete",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -481,7 +485,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         # Responce is a bool, so just return responce?
         return tc_data.data
@@ -514,9 +518,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"MessageComment_Add",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,
@@ -526,7 +530,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "commentId" in tc_data.data and tc_data.data["commentId"]:
             return Messagecomment(**tc_data.data)
@@ -562,9 +566,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Team_Get",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,            
@@ -572,7 +576,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "teamId" in tc_data.data and tc_data.data["teamId"]:
             return Team(**tc_data.data)
@@ -652,18 +656,18 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Team_GetEvents",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,            
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Event(**event) for event in tc_data.data]
@@ -725,18 +729,18 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Team_GetMessages",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,            
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Message(**msg) for msg in tc_data.data]
@@ -789,18 +793,18 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Team_GetRoster",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,            
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [User(**user) for user in tc_data.data]
@@ -830,9 +834,9 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Team_GetSeasons",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,
             "teamId": teamId,            
@@ -840,7 +844,7 @@ class Teamcowboy:
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Season(**season) for season in tc_data.data]
@@ -850,7 +854,7 @@ class Teamcowboy:
     Test Methods
     """
 
-    def Test_GetRequest(self, **params) -> Testresponce:
+    def Test_GetRequest(self, **params) -> Tresponce:
         """
         This is a very basic testing method for checking that you are able to 
         call the Team Cowboy API via a HTTP GET.
@@ -875,22 +879,22 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Test_GetRequest",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json"    
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'', ep_params = request_data)
 
         if "helloWorld" in tc_data.data and tc_data.data["helloWorld"]:
-            return Testresponce(**tc_data.data)
+            return Tresponce(**tc_data.data)
         
 
-    def Test_PostRequest(self, **params) -> Testresponce:
+    def Test_PostRequest(self, **params) -> Tresponce:
         """
         This is a very basic testing method for checking that you are able to 
         call the Team Cowboy API via a HTTP POST.
@@ -915,19 +919,19 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"Test_PostRequest",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json"    
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.post(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "helloWorld" in tc_data.data and tc_data.data["helloWorld"]:
-            return Testresponce(**tc_data.data)
+            return Tresponce(**tc_data.data)
         
 
     """
@@ -951,16 +955,16 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"User_Get",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken,          
         }
 
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "userId" in tc_data.data and tc_data.data["userId"]:
             return User(**tc_data.data)
@@ -997,17 +1001,17 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"User_GetNextTeamEvent",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken        
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if "eventId" in tc_data.data and tc_data.data["eventId"]:
             return Event(**tc_data.data)
@@ -1056,17 +1060,17 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"User_GetTeamEvents",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken        
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Event(**event) for event in tc_data.data]
@@ -1130,15 +1134,15 @@ class Teamcowboy:
             "api_key":self.publickey,
             "method":"Auth_GetUserToken",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken        
         }
 
-        rdata |+ params
-        request_data = tc_helpers.createrequestdata(rdata)
+        rdata |= params
+        request_data = tc_helpers.User_GetTeamMessages(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Message(**messsage) for messsage in tc_data.data]
@@ -1167,17 +1171,17 @@ class Teamcowboy:
             "request_type": "GET",
             "private_key":self.privatekey,
             "api_key":self.publickey,
-            "method":"Auth_GetUserToken",
+            "method":"User_GetTeams",
             "timestamp":time.time(),
-            "nonce":F"int(1000*{time.time()})",
+            "nonce":F"{int(1000*time.time())}",
             "responce_type":"json",
             "userToken": self.usertoken        
         }
 
-        rdata |+ params
+        rdata |= params
         request_data = tc_helpers.createrequestdata(rdata)
 
-        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data).json
+        tc_data = self._tc_adapter_v1.get(endpoint=f'https://api.teamcowboy.com/v1/', data = request_data)
 
         if tc_data.data:
             return [Team(**team) for team in tc_data.data]
