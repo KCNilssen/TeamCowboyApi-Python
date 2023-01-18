@@ -42,8 +42,10 @@ class TCDataAdapter:
         instance of logger class
     """
 
+    
+
     def __init__(self, hostname: str = 'api.teamcowboy.com', ver: str = 'v1', logger: logging.Logger = None):
-        self.url = f'https://{hostname}/api/{ver}/'
+        self.url = f'https://{hostname}/{ver}/'
         self._logger = logger or logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
 
@@ -70,7 +72,7 @@ class TCDataAdapter:
 
         try:
             self._logger.debug(logline_post)
-            response = requests.post(url=full_url, params=ep_params)
+            response = requests.post(url=full_url, data=ep_params)
 
         except requests.exceptions.RequestException as e:
             self._logger.error(msg=(str(e)))

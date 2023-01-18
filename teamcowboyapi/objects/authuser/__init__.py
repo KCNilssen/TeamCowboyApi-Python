@@ -1,1 +1,1 @@
-from authuser import Authuser
+from .authuser import Authuser

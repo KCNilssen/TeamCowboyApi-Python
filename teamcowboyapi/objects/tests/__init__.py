@@ -1,1 +1,1 @@
-from .test import Testresponce
+from .test import Tresponce
