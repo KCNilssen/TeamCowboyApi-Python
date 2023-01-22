@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Optional
 from dataclasses import dataclass
 
 from .postedby import Postedby
@@ -87,9 +87,15 @@ class Message:
     commentCount: int
     team: Union[Simplemessageteam, dict]
     postedBy: Union[Postedby, dict]
-    comments: List[Union[Messagecomment, dict]]
     userMetaInfo: Union[Usermetainfo, dict]
     dateCreatedLocal: str #date/time
     dateLastUpdatedLocal: str #date/time
     dateCreatedUtc: str #date/time
     dateLastUpdatedUtc: str #date/time
+    comments: Optional[List[Union[Messagecomment, dict]]] = None
+
+    def __post_init__(self):
+        self.team = Simplemessageteam(**self.team)
+        self.postedBy = Postedby(**self.postedBy)
+        self.userMetaInfo = Usermetainfo(**self.userMetaInfo)
+        self.comments = Messagecomment(**self.comments) if self.comments else None

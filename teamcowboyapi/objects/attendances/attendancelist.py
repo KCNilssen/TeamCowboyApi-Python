@@ -311,11 +311,11 @@ class Attendancelist:
     """
     countsByStatus: List[Union[Attendancecount, dict]]
     meta: Metaattendancelist
-    usersIdsByStatus: List[Union[Rsvpid, dict]]
+    userIdsByStatus: List[Union[Rsvpid, dict]]
     users: List[Union[Usersattendancelist, dict]]
 
     def __post_init__(self):
         self.countsByStatus = [Attendancecount(**status) for status in self.countsByStatus]
         self.meta = Metaattendancelist(**self.meta)
-        self.usersIdsByStatus = [Rsvpid(**status) for status in self.usersIdsByStatus]
+        self.userIdsByStatus = [Rsvpid(**status) for status in self.userIdsByStatus]
         self.users = [Usersattendancelist(**user) for user in self.users]
