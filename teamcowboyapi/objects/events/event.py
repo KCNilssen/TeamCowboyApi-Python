@@ -252,6 +252,9 @@ class Event:
     femaleGenderDisplay : str
         The display text to use for female genders on the team. This is based 
         on team settings.
+    otherGenderDisplay : str
+        The display text to use for other genders on the team. This is based 
+        on team settings.
     dateTimeInfo : Datetimeinfo
         Simple object with describing date/time information for the event.
     location : Location
@@ -283,25 +286,27 @@ class Event:
     titleLabel: str
     homeAway: str
     result: Eventresult
-    rsvpInstances: List[Rsvpinstance]
     comments: str
     options: List #List[Eventoption] No idea whats here, need api access to figure out
     oneLineDisplay: str
     oneLineDisplayShort: str
     maleGenderDisplay: str
     femaleGenderDisplay: str
+    otherGenderDisplay: str
     dateTimeInfo: Datetimeinfo
-    location: Location      # This might have to be a optional. Need api access to confirm
     shirtColors: Shirtcolors
     userMetaInfo: Usermetainfo
     dateCreatedUtc: str
     dateLastUpdatedUtc: str
+    location: Optional[Location] = None      # This might have to be a optional. Need api access to confirm
+    rsvpInstances: Optional[List[Union[Rsvpinstance, dict]]] = None
+    
 
     def __post_init__(self):
         self.team = Simpleteam(**self.team)
         self.result = Eventresult(**self.result)
-        self.rsvpInstances = [Rsvpinstance(**instance) for instance in self.rsvpInstances]
+        self.rsvpInstances = [Rsvpinstance(**instance) for instance in self.rsvpInstances] if self.rsvpInstances else []
         self.dateTimeInfo = Datetimeinfo(**self.dateTimeInfo)
-        self.location = Location(**self.location)
+        self.location = Location(**self.location) if self.location else None
         self.shirtColors = Shirtcolors(**self.shirtColors)
         self.userMetaInfo = Usermetainfo(**self.userMetaInfo)

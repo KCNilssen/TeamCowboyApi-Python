@@ -57,7 +57,7 @@ class Address:
         Zip/Postal code
     partOfTown : str 
         Part of town (neighborhood, etc)
-    displayMultLine : str 
+    displayMultiLine : str 
         Multi-line display for the address (lines separated by newlines)
     displaySingleLine : str S
         ingle-line display for the address
@@ -72,7 +72,7 @@ class Address:
     stateProvince: str
     postalCode: str
     partOfTown: str
-    displayMultLine: str
+    displayMultiLine: str
     displaySingleLine: str
     googleMapsUrl: str
     googleMapsDirectionsUrl: str

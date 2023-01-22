@@ -1,7 +1,7 @@
-from typing import Union
+from typing import Union, Optional
 from dataclasses import dataclass
 
-from teamcowboyapi.objects.users import Profilephoto
+from teamcowboyapi.objects.photos import Profilephoto
 
 @dataclass
 class Postedby:
@@ -36,8 +36,8 @@ class Postedby:
     gender: str
     genderDisplay: str
     profilePhoto: Union[Profilephoto, dict]
-    fullUrl: str
-    thumbUrl: str
+    fullUrl: Optional[str] = None
+    thumbUrl: Optional[str] = None
 
     def __post_init__(self):
         self.profilePhoto = Profilephoto(**self.profilePhoto)

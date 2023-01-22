@@ -1,2 +1,2 @@
-class TheMlbStatsApiException(Exception):
+class TheTeamCowboyAPIException(Exception):
     pass
