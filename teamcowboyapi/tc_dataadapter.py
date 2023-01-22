@@ -80,7 +80,6 @@ class TCDataAdapter:
 
         try:
             data = response.json()
-            # print ("data: ", data)
 
         except (ValueError, requests.JSONDecodeError) as e: 
             self._logger.error(msg=(str(e)))
@@ -158,15 +157,12 @@ class TCDataAdapter:
             self._logger.debug(logline_post)
             response = requests.get(url=full_url, params=ep_params)
 
-            # print (response.url)
-
         except requests.exceptions.RequestException as e:
             self._logger.error(msg=(str(e)))
             raise TheTeamCowboyAPIException('Request failed') from e
 
         try:
             data = response.json()
-            # print ("data: ", data)
 
         except (ValueError, requests.JSONDecodeError) as e: 
             self._logger.error(msg=(str(e)))
