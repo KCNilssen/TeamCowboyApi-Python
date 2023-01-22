@@ -23,7 +23,7 @@ To get started with the library, refer to the information provided in this READM
 
 <div align="center">
 
-### [Docs]() | [Examples]() | [Wiki]() | [API]() 
+### [Docs](http://api.teamcowboy.com/v1/docs/) | [Examples]() | [Wiki](http://api.teamcowboy.com/v1/docs/) | [API](https://api.teamcowboy.com/v1/) 
 
 <div align="left">
 
