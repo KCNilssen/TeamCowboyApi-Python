@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from dataclasses import dataclass
 
 @dataclass
@@ -33,6 +33,7 @@ class Colorswatch:
         An array of colors in the color swatch. Each array element is an 
         object describing the color.
     """
-    label: str
     colorCount: int
     colors: List[Union[Color, dict]]
+    title: str
+    label: Optional[str] = None

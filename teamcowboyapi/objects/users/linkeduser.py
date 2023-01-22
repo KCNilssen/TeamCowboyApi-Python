@@ -96,6 +96,10 @@ class Linkeduser:
     isActive: bool
     profilePhoto: Union[Profilephoto, dict]
     teams: List[Union[Simpleteam, dict]]
+    # notes: 
+    # isTeamAdmin
+    # invite
+    # options
 
     def __post_init__(self):
         self.profilePhoto = Profilephoto(**self.profilePhoto)

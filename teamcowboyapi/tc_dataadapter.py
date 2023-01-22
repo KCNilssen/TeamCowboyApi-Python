@@ -72,7 +72,7 @@ class TCDataAdapter:
 
         try:
             self._logger.debug(logline_post)
-            response = requests.post(url=full_url, data=ep_params)
+            response = requests.post(url=full_url, data=data)
 
         except requests.exceptions.RequestException as e:
             self._logger.error(msg=(str(e)))
@@ -80,6 +80,7 @@ class TCDataAdapter:
 
         try:
             data = response.json()
+            # print ("data: ", data)
 
         except (ValueError, requests.JSONDecodeError) as e: 
             self._logger.error(msg=(str(e)))
@@ -112,7 +113,7 @@ class TCDataAdapter:
                 
             else:
                 # Everything is juicy, send the data over
-                return TCResult(errorobject.httpResponce, message=errorobject.message, data=data['body'])
+                return TCResult(response.status_code, message=response.reason, data=data['body'])
 
         elif response.status_code >= 400 and response.status_code <= 499:  
             self._logger.error(msg=logline_post.format('Invalid Request',
@@ -157,12 +158,15 @@ class TCDataAdapter:
             self._logger.debug(logline_post)
             response = requests.get(url=full_url, params=ep_params)
 
+            # print (response.url)
+
         except requests.exceptions.RequestException as e:
             self._logger.error(msg=(str(e)))
             raise TheTeamCowboyAPIException('Request failed') from e
 
         try:
             data = response.json()
+            # print ("data: ", data)
 
         except (ValueError, requests.JSONDecodeError) as e: 
             self._logger.error(msg=(str(e)))
@@ -195,7 +199,7 @@ class TCDataAdapter:
                 
             else:
                 # Everything is juicy, send the data over
-                return TCResult(errorobject.httpResponce, message=errorobject.message, data=data['body'])
+                return TCResult(response.status_code, message=response.reason, data=data['body'])
 
         elif response.status_code >= 400 and response.status_code <= 499:  
             self._logger.error(msg=logline_post.format('Invalid Request',

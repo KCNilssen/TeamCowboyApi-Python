@@ -97,8 +97,10 @@ class Miscoptions:
         Whether or not to hide the display of genders for the team
     """
     showRecord: bool
+    attendanceListSeparateGenders: bool
     attendanceListMaleLabel: str
     attendanceListFemaleLabel: str
+    attendanceListOtherGenderLabel: str
     hideGenders: bool
 
 @dataclass
@@ -163,12 +165,18 @@ class Simpleteamuserprofile:
         Array of options specific to the user/team pair
     isTeamAdmin : bool
         Whether or not the user is an administrator on the team
+    birthDate_month : int
+        birthday month`
+    birthDate_day : int
+        birthday day
+    birthDate_year : int
+        birthday year
     """
     firstName: str
     lastName: str
     fullName: str
     displayName: str
-    emailAddress: str
+    emailAddress1: str
     emailAddress2: str
     phone1: str
     phone2: str
@@ -180,6 +188,9 @@ class Simpleteamuserprofile:
     profilePhoto: Union[Profilephoto, dict]
     options: list
     isTeamAdmin: bool
+    birthDate_month: Optional[int] = None
+    birthDate_day: Optional[int] = None
+    birthDate_year: Optional[int] = None
 
     def __post_init__(self):
         self.profilePhoto = Profilephoto(**self.profilePhoto)
@@ -310,13 +321,23 @@ class Team:
     postalCode: str
     locationDisplayShort: str
     locationDisplayLong: str
-    teamPhoto: Union[Profilephoto, dict]
     colorSwatches: Union[Teamcolorswatches, dict] # Property will be null if no color swatch is defined
     options: Union[Teamoptions, dict]
-    userProfileInfo: Union[Simpleteamuserprofile, dict]
-    meta: Union[Teammeta, dict]
     dateCreatedUtc: str #date/time
     dateLastUpdatedUtc: str #date/time
+    userProfileInfo: Optional[Union[Simpleteamuserprofile, dict]] = None
+    meta: Optional[Union[Teammeta, dict]] = None
+    teamPhoto: Optional[Union[Profilephoto, dict]] = None
     managerUser: Optional[Simpleteammember] = None
     captainUser: Optional[Simpleteammember] = None
 
+    def __post_init__(self):
+        self.type = Teamtype(**self.type)
+        self.activity = Activity(**self.activity)
+        self.colorSwatches = Teamcolorswatches(**self.colorSwatches)
+        self.options = Teamoptions(**self.options)
+        self.userProfileInfo = Simpleteamuserprofile(**self.userProfileInfo) if self.userProfileInfo else None
+        self.meta = Teammeta(**self.meta) if self.meta else None
+        self.teamPhoto = Profilephoto(**self.teamPhoto) if self.teamPhoto else None
+        self.managerUser = Simpleteammember(**self.managerUser) if self.managerUser else None
+        self.captainUser = Simpleteammember(**self.captainUser) if self.captainUser else None

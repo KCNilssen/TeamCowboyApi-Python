@@ -58,10 +58,13 @@ class Teammeta:
         Array of options specific to the user on the team
     """
     teamMemberType: Union[Teammembertype, dict]
-    notes: str 
-    isTeamAdmin: bool
-    invite: Union[Invite, dict]
-    options: list  
+    notes: Optional[str] = None
+    isTeamAdmin: Optional[bool] = None
+    invite: Optional[Union[Invite, dict]] = None
+    options: Optional[list] = list 
+
+    def __post_init__(self):
+        self.invite = Invite(**self.invite) if self.invite else None
 
 @dataclass
 class Linkedusers:
@@ -185,22 +188,22 @@ class User:
     phone2: str
     gender: str
     genderDisplay: str
-    birthDate_month: int
-    birthDate_day: int
-    birthDate_year: int
-    shirtNumber: str
-    shirtSize: str
-    pantsSize: str
-    options: list #!
-    profilePhoto: Profilephoto
-    linkedUsers: Linkedusers
+    profilePhoto: Union[Profilephoto, dict]
     dateCreatedUtc: str
     dateLastUpdatedUtc: str
     dateLastSignInUtc: str
     teamMeta: Optional[Union[Teammeta, dict]] = None
+    shirtNumber: Optional[str] = None
+    shirtSize: Optional[str] = None
+    pantsSize: Optional[str] = None
+    options: Optional[list] = None
+    linkedUsers: Optional[Union[Linkedusers, dict]] = None
+    birthDate_month: Optional[int] = None
+    birthDate_day: Optional[int] = None
+    birthDate_year: Optional[int] = None
 
     def __post_init__(self):
         self.profilePhoto = Profilephoto(**self.profilePhoto)
-        self.linkedUsers = Linkedusers(**self.linkedUsers)
-        self.teamMeta = Teammeta(**self.teamMeta)
+        self.linkedUsers = Linkedusers(**self.linkedUsers) if self.linkedUsers else None
+        self.teamMeta = Teammeta(**self.teamMeta) if self.teamMeta else None
 

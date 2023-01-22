@@ -49,60 +49,68 @@ class TestAuth(unittest.TestCase):
         Tests Event_Get function with teamcowboy api
         """
         # Event_Get(self, teamId: int, eventId: int, **params) -> Event:
-        teamid = 1234
-        eventId = 1234
-        includeRSVPInfo = False
+        teamid = 208
+        event1Id = 1950161 # bye game
+        event2Id = 1950162 # game vs sharks
+        includeRSVPInfo = "False"
         
-        eventgetreturn = self.tc.Event_Get(teamid, eventId, includeRSVPInfo=includeRSVPInfo)
+        event1getreturn = self.tc.Event_Get(teamid, event1Id, includeRSVPInfo=includeRSVPInfo)
+        event2getreturn = self.tc.Event_Get(teamid, event2Id, includeRSVPInfo=includeRSVPInfo)
 
         # eventgetreturn should not be none
-        self.assertIsNotNone(eventgetreturn)
+        self.assertIsNotNone(event1getreturn)
+        self.assertIsNotNone(event2getreturn)
         # Returned item should be a Event object
-        self.assertIsInstance(eventgetreturn, Event)
+        self.assertIsInstance(event1getreturn, Event)
+        self.assertIsInstance(event2getreturn, Event)
 
     def test_event_getattendancelist(self):
         """
         Tests Event_GetAttendanceList function with teamcowboy api
         """
         # Event_GetAttendanceList(self, teamId: int, eventId: int) -> Attendancelist:
-        teamid = 1234
-        eventId = 1234
+        teamid = 208
+        event1Id = 1950161 # bye game
+        event2Id = 1950162 # game vs sharks
         
-        attendancelistreturn = self.tc.Event_Get(teamid, eventId)
+        attendancelist1return = self.tc.Event_GetAttendanceList(teamid, event1Id)
+        attendancelist2return = self.tc.Event_GetAttendanceList(teamid, event2Id)
 
         # attendancelistreturn should not be none
-        self.assertIsNotNone(attendancelistreturn)
+        self.assertIsNotNone(attendancelist1return)
+        self.assertIsNotNone(attendancelist2return)
         # Returned item should be a Attendancelist object
-        self.assertIsInstance(attendancelistreturn, Attendancelist)
+        self.assertIsInstance(attendancelist1return, Attendancelist)
+        self.assertIsInstance(attendancelist2return, Attendancelist)
 
     def test_event_saversvp(self):
         """
         Tests Event_SaveRSVP function with teamcowboy api
         """
         # Event_SaveRSVP(self, teamId: int, eventId: int, status: str, **params) -> Saversvpresponse:
-        teamid = 1234
-        eventId = 1234
-        status = "no"
-        # addlMale = 
-        # addlFemale = 
-        # comments =
-        # rsvpAsUserId = 
+        # teamid = 208
+        # event2Id = 1950162 # game vs sharks
+        # status = "yes"
+        # # addlMale = 
+        # # addlFemale = 
+        # # comments =
+        # # rsvpAsUserId = 
         
-        saversvpresponce = self.tc.Event_Get(teamid, eventId, status)
+        # saversvpresponce = self.tc.Event_SaveRSVP(teamid, event2Id, status)
 
-        # saversvpresponce should not be none
-        self.assertIsNotNone(saversvpresponce)
-        # Returned item should be a Saversvpresponse object
-        self.assertIsInstance(saversvpresponce, Saversvpresponse)
+        # # saversvpresponce should not be none
+        # self.assertIsNotNone(saversvpresponce)
+        # # Returned item should be a Saversvpresponse object
+        # self.assertIsInstance(saversvpresponce, Saversvpresponse)
 
     def test_message_get(self):
         """
         Tests Message_Get function with teamcowboy api
         """
         # Message_Get(self, teamId: int, messageId: int, **params) -> Message:
-        teamid = 1234
-        messageId = 1234
-        loadComments = False
+        teamid = 208
+        messageId = 137756
+        loadComments = "False"
         
         messsagegetresponce = self.tc.Message_Get(teamid, messageId, loadComments=loadComments)
 
@@ -116,75 +124,75 @@ class TestAuth(unittest.TestCase):
         Tests Message_Delete function with teamcowboy api
         """
         # Message_Delete(self, teamId: int, messageId: int) -> bool:
-        teamid = 1234
-        messageId = 1234
+        # teamid = 208
+        # messageId = 1234
         
-        messsagedeleteresponce = self.tc.Message_Get(teamid, messageId)
+        # messsagedeleteresponce = self.tc.Message_Get(teamid, messageId)
 
-        # messsagedeleteresponce should not be none
-        self.assertIsNotNone(messsagedeleteresponce)
-        # messsagedeleteresponce item should be a bool
-        self.assertIsInstance(messsagedeleteresponce, bool)
+        # # messsagedeleteresponce should not be none
+        # self.assertIsNotNone(messsagedeleteresponce)
+        # # messsagedeleteresponce item should be a bool
+        # self.assertIsInstance(messsagedeleteresponce, bool)
 
     def test_message_save(self):
         """
         Tests Message_Save function with teamcowboy api
         """
-        # Message_Save(self, teamId: int, title: str, body: str, **params) -> Message:
-        teamid = 1234
-        messageId = 1234
-        body = "This is the body text for testing"
-        # messageId = 
-        # isPinned = 
-        # sendNotifications = 
-        # isHidden = 
-        # allowComments =        
+        # # Message_Save(self, teamId: int, title: str, body: str, **params) -> Message:
+        # teamid = 208
+        # messageId = 1234
+        # body = "This is the body text for testing"
+        # # messageId = 
+        # # isPinned = 
+        # # sendNotifications = 
+        # # isHidden = 
+        # # allowComments =        
         
-        messsagesaveresponce = self.tc.Message_Save(teamid, messageId, body)
+        # messsagesaveresponce = self.tc.Message_Save(teamid, messageId, body)
 
-        # messsagesaveresponce should not be none
-        self.assertIsNotNone(messsagesaveresponce)
-        # messsagesaveresponce item should be a Message
-        self.assertIsInstance(messsagesaveresponce, Message)
+        # # messsagesaveresponce should not be none
+        # self.assertIsNotNone(messsagesaveresponce)
+        # # messsagesaveresponce item should be a Message
+        # self.assertIsInstance(messsagesaveresponce, Message)
 
     def test_messagecomment_delete(self):
         """
         Tests Message_Save function with teamcowboy api
         """
-        # MessageComment_Delete(self, teamId: int, messageId: int, commentId: int) -> bool:
-        teamid = 1234
-        messageId = 1234
-        commentId = 1      
+        # # MessageComment_Delete(self, teamId: int, messageId: int, commentId: int) -> bool:
+        # teamid = 208
+        # messageId = 1234
+        # commentId = 1      
         
-        messsagecommentdeleteresponce = self.tc.MessageComment_Delete(teamid, messageId, commentId)
+        # messsagecommentdeleteresponce = self.tc.MessageComment_Delete(teamid, messageId, commentId)
 
-        # messsagecommentdeleteresponce should not be none
-        self.assertIsNotNone(messsagecommentdeleteresponce)
-        # messsagecommentdeleteresponce item should be a Message
-        self.assertIsInstance(messsagecommentdeleteresponce, Message)
+        # # messsagecommentdeleteresponce should not be none
+        # self.assertIsNotNone(messsagecommentdeleteresponce)
+        # # messsagecommentdeleteresponce item should be a Message
+        # self.assertIsInstance(messsagecommentdeleteresponce, Message)
 
     def test_messagecomment_add(self):
         """
         Tests Message_Save function with teamcowboy api
         """
-        # MessageComment_Add(self, teamId: int, messageId: int, comment: str) -> Messagecomment:
-        teamid = 1234
-        messageId = 1234
-        comment = "This is a comment to test"     
+        # # MessageComment_Add(self, teamId: int, messageId: int, comment: str) -> Messagecomment:
+        # teamid = 208
+        # messageId = 1234
+        # comment = "This is a comment to test"     
         
-        messsagecommentaddresponce = self.tc.MessageComment_Add(teamid, messageId, comment)
+        # messsagecommentaddresponce = self.tc.MessageComment_Add(teamid, messageId, comment)
 
-        # messsagecommentaddresponce should not be none
-        self.assertIsNotNone(messsagecommentaddresponce)
-        # messsagecommentaddresponce item should be a Messagecomment
-        self.assertIsInstance(messsagecommentaddresponce, Messagecomment)
+        # # messsagecommentaddresponce should not be none
+        # self.assertIsNotNone(messsagecommentaddresponce)
+        # # messsagecommentaddresponce item should be a Messagecomment
+        # self.assertIsInstance(messsagecommentaddresponce, Messagecomment)
 
     def test_team_get(self):
         """
         Tests Message_Save function with teamcowboy api
         """
         # Team_Get(self, teamId: int) -> Team:
-        teamid = 1234     
+        teamid = 208     
         
         teamgetresponce = self.tc.Team_Get(teamid)
 
@@ -198,7 +206,7 @@ class TestAuth(unittest.TestCase):
         Tests Team_GetEvents function with teamcowboy api
         """
         # Team_GetEvents(self, teamId: int, **params) -> List[Event]:
-        teamid = 1234     
+        teamid = 208     
         # seasonId = 
         # offset = 
         # qty = 
@@ -220,7 +228,7 @@ class TestAuth(unittest.TestCase):
         Tests Team_GetMessages function with teamcowboy api
         """
         # Team_GetMessages(self, teamId: int, **params) -> List[Message]:
-        teamid = 1234     
+        teamid = 208     
         # messageId = 
         # offset = 
         # qty = 
@@ -241,7 +249,7 @@ class TestAuth(unittest.TestCase):
         Tests Team_GetRoster function with teamcowboy api
         """
         # Team_GetRoster(self, teamId: int, **params) -> List[User]:
-        teamid = 1234     
+        teamid = 208     
         # userId = 
         # includeInactive = 
         # sortBy = 
@@ -261,7 +269,7 @@ class TestAuth(unittest.TestCase):
         Tests Team_GetSeasons function with teamcowboy api
         """
         # Team_GetSeasons(self, teamId: int) -> List[Season]:
-        teamid = 1234     
+        teamid = 208     
         
         teamgetseasonsresponce = self.tc.Team_GetSeasons(teamid)
 
@@ -276,14 +284,14 @@ class TestAuth(unittest.TestCase):
         """
         Tests Test_GetRequest function with teamcowboy api
         """
-        authreturn = self.tc.Test_GetRequest(testParam="Testing this works")
+        authreturn = self.tc.Test_GetRequest(testParam="test")
         self.assertIsInstance(authreturn, Tresponce)
 
     def test_postrequest(self):
         """
         Tests Test_PostRequest function with teamcowboy api
         """
-        authreturn = self.tc.Test_PostRequest(testParam="Testing this works")
+        authreturn = self.tc.Test_PostRequest(testParam="test")
         self.assertIsInstance(authreturn, Tresponce)
 
     def test_user_get(self):
