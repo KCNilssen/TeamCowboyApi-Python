@@ -16,8 +16,6 @@ def createrequestdata(requestparams: dict) -> dict:
     for key, value in sorted(requestparams.items()):
         signatureinputstring += F"{key.lower()}={value.lower() if type(value) == str else value}&"
 
-    # print ("signatureinputstring: ", signatureinputstring[:-1])
-
     sig = hashlib.sha1(signatureinputstring[:-1].encode('UTF-8')).hexdigest()
 
     # requestparams.pop('request_type')

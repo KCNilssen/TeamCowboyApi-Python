@@ -2,6 +2,8 @@ import unittest
 from dotenv import load_dotenv
 import os 
 
+from datetime import datetime
+
 from teamcowboyapi import Teamcowboy
 
 from teamcowboyapi.objects.authuser import Authuser
@@ -329,12 +331,13 @@ class TestAuth(unittest.TestCase):
         """
         # User_GetTeamEvents(self, **params) -> List[Event]:
 
-        # startDateTime = 
-        # endDateTime = 
+        startDateTime = datetime.now()
+        endDateTime = "2023-01-23 23:59:59"
+        endDateTime= datetime.strptime(endDateTime, '%Y-%m-%d %H:%M:%S')
         # teamId = 
         # dashboardTeamsOnly =  
         
-        usergetteameventsresponce = self.tc.User_GetTeamEvents()
+        usergetteameventsresponce = self.tc.User_GetTeamEvents(teamId=208)
 
         # usergetteameventsresponce should not be none
         self.assertIsNotNone(usergetteameventsresponce)

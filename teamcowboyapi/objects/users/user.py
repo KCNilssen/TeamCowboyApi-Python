@@ -64,6 +64,7 @@ class Teammeta:
     options: Optional[list] = list 
 
     def __post_init__(self):
+        self.teamMemberType = Teammembertype(**self.teamMemberType)
         self.invite = Invite(**self.invite) if self.invite else None
 
 @dataclass
