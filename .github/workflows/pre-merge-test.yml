@@ -25,8 +25,7 @@ jobs:
           python3 -m pip install --upgrade pytest
           python3 -m pip install --upgrade build
           python3 -m pip install --upgrade requests
-          python3 -m pip install --upgrade requests_mock
-          python3 -m pip install dotenv
+          python3 -m pip install --upgrade requests_mock          
       - name: Test live api with pytest
         env:
           PRIVATEAPIKEY: ${{ secrets.TCPRIVATEAPIKEY }}

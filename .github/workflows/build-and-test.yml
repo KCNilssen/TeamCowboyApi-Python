@@ -26,7 +26,6 @@ jobs:
           python3 -m pip install --upgrade build
           python3 -m pip install --upgrade requests
           python3 -m pip install --upgrade requests_mock
-          python3 -m pip install --upgrade dotenv
       # - name: Test with mocks with pytest
       #   run: |
       #     python3 -m pytest tests/mock_tests/*
