@@ -6,9 +6,8 @@
 
 <!-- ![Development Branch Status]() -->
 <!-- ![Periodic External Test Status]() -->
-[![PyPI version](https://badge.fury.io/py/python-teamcowboy-api.svg)](https://badge.fury.io/py/python-teamcowboy-api)
-![Main Branch Status](https://github.com/KCNilssen/TeamCowboyApi-Python/actions/workflows/build-and-test.yml/badge.svg?event=push)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/python-teamcowboy-api)
+[![PyPI version](https://badge.fury.io/py/teamcowboy-api.svg)](https://badge.fury.io/py/teamcowboy-api)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/teamcowboy-api)
 ![GitHub](https://img.shields.io/github/license/KCNilssen/TeamCowboyApi-Python)
 
 ![Team Cowboy API](https://static.teamcowboy.com/images/tcLogo_glow.png)
@@ -71,3 +70,12 @@ python3
 * `Teamcowboy.User_GetTeamEvents(self, **params)` - Return next team Events for user
 * `Teamcowboy.User_GetTeamMessages(self, **params)` - Return team Messages for user
 * `Teamcowboy.User_GetTeams(self, **params)` - Return users Teams
+
+
+
+
+
+
+
+
+
