@@ -1,4 +1,5 @@
 import unittest
+from dotenv import load_dotenv
 import os 
 
 from datetime import datetime
@@ -17,7 +18,8 @@ from teamcowboyapi.objects.tests import Tresponce
 
 class TestAuth(unittest.TestCase):
     @classmethod
-    def setUpClass(cls) -> None:        
+    def setUpClass(cls) -> None:
+        load_dotenv()
         privateapikey = os.environ.get("PRIVATEAPIKEY")
         publicapikey = os.environ.get("PUBLICAPIKEY")
         username = os.environ.get("USERNAME")
