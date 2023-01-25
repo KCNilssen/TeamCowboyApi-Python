@@ -4,10 +4,10 @@
 
 **The Unofficial Python Wrapper for the Team Cowboy API**
 
-<!-- [![PyPI version]()]() -->
 <!-- ![Development Branch Status]() -->
 <!-- ![Periodic External Test Status]() -->
-<!-- ![PyPI - Python Version]() -->
+[![PyPI version](https://badge.fury.io/py/teamcowboy-api.svg)](https://badge.fury.io/py/teamcowboy-api)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/teamcowboy-api)
 ![GitHub](https://img.shields.io/github/license/KCNilssen/TeamCowboyApi-Python)
 
 ![Team Cowboy API](https://static.teamcowboy.com/images/tcLogo_glow.png)

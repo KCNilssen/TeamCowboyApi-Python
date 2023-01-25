@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-teamcowboy-api"
+version = "0.1.0"
+
+authors = [
+  { name="Kristian Nilssen", email="kristian.c.nilssen@gmail.com" },
+]
+description = "Teamcowboy python wrapper"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2", 
+  "requests_mock>=1.10.0"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+[project.urls]
+"Homepage" = "https://github.com/KCNilssen/TeamCowboyApi-Python"
+"Bug Tracker" = "https://github.com/KCNilssen/TeamCowboyApi-Python/issues"
