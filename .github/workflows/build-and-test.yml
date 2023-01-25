@@ -1,13 +1,13 @@
-name: Test
+name: Python Build Teamcowboy API 
 
 on:
   push:
-   branches:
-     - development
-
+    branches:
+     - main
+     
 jobs:
-  test:
-  
+  build:
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,9 +26,17 @@ jobs:
           python3 -m pip install --upgrade build
           python3 -m pip install --upgrade requests
           python3 -m pip install --upgrade requests_mock
-      - name: Test live api with pytest
+      # - name: Test with mocks with pytest
+      #   run: |
+      #     python3 -m pytest tests/mock_tests/*
+      - name: Test live api tests with pytest
         run: |
           python3 -m pytest tests/live_tests/*
-      # - name: Test external tests with pytest
-      #   run: |
-      #     python3 -m pytest tests/external_tests/*
+      - name: build and install
+        run: |
+          python3 -m build
+          python3 -m pip install .
+      - name: Publish a Python distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TEAMCOWBOY_API }}
