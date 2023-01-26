@@ -29,7 +29,6 @@ To get started with the library, refer to the information provided in this READM
 <div align="left">
 
 ## Installation
-- To be added, does not work yet
 ```python
 python3 -m pip install python-teamcowboy-api
 ```
